@@ -5,19 +5,19 @@ logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 from scapy.all import *
 from Crypto.Cipher import AES
 
-SECRET_KEY = '0123456789abcdef'
+MASTER_KEY = '12345678901234567890123456789012'
 
-def AesEncrypt(plainText):
-	cipher = AES.new(SECRET_KEY)
-	paddedPlainText = str(plainText) + (((AES.block_size - len(str(plainText))) % AES.block_size) *"\0")
-	cipherTxt = base64.b64encode(cipher.encrypt(paddedPlainText))
-	return cipherTxt
+def encrypt(data):
+  secret = AES.new(MASTER_KEY)
+  tagString = str(data) + (AES.block_size - len(str(data)) % AES.block_size) * "\0"
+  cipherText = base64.b64encode(secret.encrypt(tagString))
+  return cipherText
 
-def AesDecrypt(cipherTxt):
-	secret = AES.new(SECRET_KEY)
-	plainText = secret.decrypt(base64.b64encode(cipherTxt))
-	unpaddedPlainText = plainText.rstrip("\0")
-	return unpaddedPlainText
+def decrypt(encryptedData):
+  secret = AES.new(MASTER_KEY)
+  rawDecrypted = secret.decrypt(base64.b64decode(encryptedData))
+  data = rawDecrypted.rstrip("\0")
+  return data
 
 def stopfilter(pkt):
 	if ARP in pkt:
@@ -36,7 +36,7 @@ def main():
 
 	while 1:
 		payload = raw_input("Some input please: ")
-		pkt = IP(dst=args.dstIp, src=args.srcIp)/UDP(dport=int(args.dstPort), sport=8000)/AesEncrypt(payload)
+		pkt = IP(dst=args.dstIp, src=args.srcIp)/UDP(dport=int(args.dstPort), sport=8000)/encrypt(payload)
 		send(pkt)
 		sniff(filter="udp and (src port " + args.dstPort + " and src " + args.dstIp + ")", stop_filter=stopfilter)
 
