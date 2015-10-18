@@ -1,26 +1,3 @@
-'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
---  SOURCE FILE:    blackhat.py
---
---  AUTHOR:         Thilina Ratnayake
---
---  PROGRAM:        Initiates a connection with a target by crafting its own
---                  packets, and establishes a remote shell.
---
---  FUNCTIONS:      sendCommand(string)
---                  craftCommandPacket(string)
---                  encryptCommand(string)
---                  commandResult(packet)
---
---  DATE:           October 17, 2015
---
---  REVISIONS:
---
---  NOTES:
---  The program requires the PyCrypto and Scapy libraries for encryption and packet
---  crafting respectively.
---  'pip install pycrpyto' or https://www.dlitz.net/software/pycrypto/
---  'pip install scapy' or http://www.secdev.org/projects/scapy/
-
 import sys, os, argparse, socket, logging
 from scapy.all import *
 from AesEncryption import *
