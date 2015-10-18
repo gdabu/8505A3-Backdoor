@@ -1,23 +1,8 @@
-#!/usr/bin/python
-
-import sys, os, argparse, socket, logging, base64
-logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
+import sys, os, argparse, socket, logging
 from scapy.all import *
-from Crypto.Cipher import AES
+from AesEncryption import *
 
-MASTER_KEY = '12345678901234567890123456789012'
-
-def encrypt(data):
-  secret = AES.new(MASTER_KEY)
-  tagString = str(data) + (AES.block_size - len(str(data)) % AES.block_size) * "\0"
-  cipherText = base64.b64encode(secret.encrypt(tagString))
-  return cipherText
-
-def decrypt(encryptedData):
-  secret = AES.new(MASTER_KEY)
-  rawDecrypted = secret.decrypt(base64.b64decode(encryptedData))
-  data = rawDecrypted.rstrip("\0")
-  return data
+logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 
 def stopfilter(pkt):
 	if ARP in pkt:
@@ -32,7 +17,6 @@ def main():
 	cmdParser.add_argument('-s','--srcIp',dest='srcIp', help='Source address of the host thats sending.', required=True)
 	cmdParser.add_argument('-p','--dstPort',dest='dstPort', help='Destination port of the host to send the message to.', required=True)
 	args = cmdParser.parse_args();
-
 
 	while 1:
 		payload = raw_input("Some input please: ")
