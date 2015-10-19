@@ -1,9 +1,33 @@
+##################################################################################
+##  SOURCE FILE:    AesEncryption.py
+##
+##  AUTHOR:         Geoff Dabu
+##
+##  PROGRAM:
+##
+##
+##  FUNCTIONS:      stopfilter(packet)
+##					main()
+##
+##  DATE:           October 17, 2015
+##
+##################################################################################
 import sys, os, argparse, socket, logging
 from scapy.all import *
 from AesEncryption import *
 
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 
+##################################################################################
+##  FUNCTION
+##
+##  Name:       	stopfilter
+##  Parameters:		packet - a packet that is passed in through sniffed
+##  Return Values:	boolean - true, if sniff function ends. false, if sniff
+##					function continues.
+##  Description:	Determines whether the client continues to sniff for packets.
+##					The client only continues if there is a pkt with payload.
+##################################################################################
 def stopfilter(pkt):
 	if ARP in pkt:
 		return False
@@ -11,6 +35,15 @@ def stopfilter(pkt):
 		print decrypt(pkt['Raw'].load)
 		return True
 
+##################################################################################
+##  FUNCTION
+##
+##  Name:       	main
+##  Parameters:		n/a
+##  Return Values:	n/a
+##  Description:	Prompts the user for a command, encrypts it and sends it to
+##					the server.
+##################################################################################
 def main():
 
 	cmdParser = argparse.ArgumentParser(description="8505A3-PortKnock Client")
