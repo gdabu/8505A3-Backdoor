@@ -19,7 +19,14 @@ import base64
 
 SECRET_KEY = '12345678901234567890123456789012'
 
-
+##################################################################################
+##  FUNCTION
+##
+##  Name:           encrypt
+##  Parameters:     string - plaintext which is to be encrypted
+##  Return Values:  string - the ciphertext
+##  Description:    encrypts plain text using AES
+##################################################################################
 def encrypt(plainText):
   
   secretKey = AES.new(SECRET_KEY)
@@ -29,6 +36,14 @@ def encrypt(plainText):
   
   return cipherText
 
+##################################################################################
+##  FUNCTION
+##
+##  Name:           decrypt
+##  Parameters:     string - encrypted data
+##  Return Values:  string - the decrypted plain text
+##  Description:    decrypts data that has been encrypted with AES
+##################################################################################
 def decrypt(encryptedData):
   
   secretKey = AES.new(SECRET_KEY)
